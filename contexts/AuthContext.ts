@@ -1,5 +1,14 @@
-// src/contexts/AuthContext.js
+
 import { createContext } from "react";
 
-// Criamos o contexto vazio (será preenchido pelo Provider)
-export const AuthContext = createContext({});
+type AuthContextType = {
+  user: string | null;
+  login: (name: string) => void;
+  logout: () => void;
+};
+
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: () => {},
+  logout: () => {},
+});

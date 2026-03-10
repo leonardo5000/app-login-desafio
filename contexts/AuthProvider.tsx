@@ -1,24 +1,39 @@
-import { useEffect, useState } from "react";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
 
-interface AuthProviderProps {
-    children: React.ReactNode
-}
+type Props = {
+  children: React.ReactNode;
+};
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<{ email: string, name: string }| null>(null );
-  const [isLoading, setIsLoading] = useState(true); // Vital para UX!
+export default function AuthProvider({ children }: Props) {
+  const [user, setUser] = useState<string | null>(null);
 
-  // Simula verificação de login ao abrir o app
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000); 
+    loadUser();
   }, []);
 
-  const login = (email: string, name: string) => setUser({ email, name });
-  const logout = () => setUser(null);
+  async function loadUser() {
+    const storedUser = await AsyncStorage.getItem("@user");
+
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }
+
+  async function login(name: string) {
+    setUser(name);
+    await AsyncStorage.setItem("@user", name);
+  }
+
+  async function logout() {
+    setUser(null);
+    await AsyncStorage.removeItem("@user");
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
